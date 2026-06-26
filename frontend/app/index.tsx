@@ -3,10 +3,13 @@ import { router } from 'expo-router';
 
 export default function Home() {
     function goToLogin() {
-        router.push('/login');
+      router.push('/login');
     }
     function goToRegister() {
-        router.push('/register');
+      router.push('/register');
+    }
+    function goToProfile() {
+      router.push('./profile');
     }
 
   return (
@@ -14,6 +17,7 @@ export default function Home() {
       <Text>Hello, World!</Text>
       <Button title="Go to Login" onPress={goToLogin} />
       <Button title="Go to Register" onPress={goToRegister} />
+      <Button title="Go to Profile" onPress={goToProfile} />
     </View> 
   );
 }

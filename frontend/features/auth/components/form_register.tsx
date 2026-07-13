@@ -3,10 +3,31 @@ import Checkbox from "expo-checkbox";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { registerUser } from "../../../services/userService";
 
 const Logo = require("../assets/image/logo-nova-chance.png");
 
 export function FormRegister() {
+  const [nome,setNome] = useState("");
+  const [email,setEmail] = useState("");
+  const [senha,setPassword] = useState("");
+  const [cpf,setCpf] = useState("");
+
+  async function handleRegisterUser() {
+    try {
+      const response = await registerUser({
+        nome: nome,
+        email: email,
+        senha: senha,
+        cpf: cpf,
+        foto_perfil: null,
+        bio: null
+    });
+    console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

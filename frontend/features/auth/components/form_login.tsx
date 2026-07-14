@@ -3,16 +3,49 @@ import Checkbox from "expo-checkbox";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { login } from "../../../services/authService";
+import { router } from "expo-router";
 
 const Logo = require("../assets/image/logo-nova-chance.png");
 
-export function FormLogin() {
+export function FormLogin() { 
 
-  const [keepMachine, setkeepMachine] = useState(false);
+  const [keepMachine, setKeepMachine] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
+  const [email,setEmail] = useState("");
+  const [senha,setSenha] = useState("");
+
+  const [errorLogin,setErrorLogin] = useState("");
+  const [showSuccessLogin, setShowSuccessLogin] = useState(false);
+
+
+  async function handleLogin(){
+    try{
+
+      setErrorLogin("");
+        const response = await login({
+          email,
+          senha
+        });
+
+      console.log("Login realizado:");
+      console.log(response);
+      // depois vamos salvar o token aqui
+      setShowSuccessLogin(true);
+
+
+    } catch (error:any) {
+      console.log(error);
+      setErrorLogin(
+        "Email ou senha incorretos"
+      );
+    }
+  }
+  
   useEffect(() => {
     const keyboardDidShow = Keyboard.addListener("keyboardDidShow", () => {
       setKeyboardVisible(true);
@@ -103,6 +136,8 @@ export function FormLogin() {
             placeholder=" "
             placeholderTextColor="#aaa"
             style={styles.input}
+            value={email}
+            onChangeText={setEmail}
             onFocus={() => {
               scrollRef.current?.scrollTo({
                 y: 250,
@@ -121,6 +156,8 @@ export function FormLogin() {
               placeholderTextColor="#aaa"
               secureTextEntry={!showPassword}
               style={styles.passwordInput}
+              value={senha}
+              onChangeText={setSenha}
 
               onFocus={() => {
                 setIsPasswordFocused(true);
@@ -150,7 +187,7 @@ export function FormLogin() {
         <View style={styles.container_keep_machine}>
           <Checkbox
             value={keepMachine}
-            onValueChange={setkeepMachine}
+            onValueChange={setKeepMachine}
             color={keepMachine ? "#3CFF00" : undefined}
           />
           <Text style={styles.keep_machine_txt}>
@@ -159,9 +196,17 @@ export function FormLogin() {
         </View>
 
       {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+        
+        {
+          errorLogin !== "" && (
+            <Text style={styles.errorLogin}>
+              {errorLogin}
+            </Text>
+          )
+        }
 
         <View style={styles.button_container}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>ENTRAR NA CONTA</Text>
           </TouchableOpacity>
         </View>
@@ -173,6 +218,34 @@ export function FormLogin() {
         </View>
 
       </View>
+
+      {showSuccessLogin && (
+        <View style={styles.overlay}>
+          <View style={styles.successCard}>
+            <MaterialIcons
+              name="check-circle"
+              size={50}
+              color="#3CFF00"
+            />
+            <Text style={styles.successTitle}>
+             Login Feito!
+            </Text>
+            <Text style={styles.successText}>
+              Você está logado na sua conta.
+            </Text>
+            <TouchableOpacity
+              style={styles.successButton}
+              onPress={() => {
+                router.replace("/");
+              }}
+            >
+              <Text style={styles.successButtonText}>
+                Ir para início
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -375,5 +448,59 @@ const styles = StyleSheet.create({
   login_link: {
     color: "#3CFF00",
     fontWeight: "bold",
+  },
+
+  errorLogin:{
+    color:"#ff4444",
+    fontSize:13,
+    textAlign:"center",
+    marginBottom:10,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  successCard: {
+    width: "85%",
+    backgroundColor: "#111",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#3CFF00",
+    padding: 30,
+    alignItems: "center",
+  },
+
+  successTitle: {
+    color:"#fff",
+    fontSize:22,
+    fontWeight:"bold",
+    marginTop:15,
+  },
+
+  successText: {
+    color:"#aaa",
+    textAlign:"center",
+    marginVertical:15,
+  },
+
+  successButton: {
+    backgroundColor:"#3CFF00",
+    width:"100%",
+    padding:12,
+    borderRadius:15,
+    alignItems:"center",
+  },
+
+  successButtonText: {
+    color:"#000",
+    fontWeight:"bold",
   },
 });

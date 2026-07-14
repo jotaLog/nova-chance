@@ -3,36 +3,51 @@ import Checkbox from "expo-checkbox";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { registerUser } from "../../../services/userService";
+import { registerUser } from "../../../services/authService";
+import { router } from "expo-router";
 
 const Logo = require("../assets/image/logo-nova-chance.png");
 
 export function FormRegister() {
-  const [nome,setNome] = useState("");
-  const [email,setEmail] = useState("");
-  const [senha,setPassword] = useState("");
-  const [cpf,setCpf] = useState("");
-
-  async function handleRegisterUser() {
-    try {
-      const response = await registerUser({
-        nome: nome,
-        email: email,
-        senha: senha,
-        cpf: cpf,
-        foto_perfil: null,
-        bio: null
-    });
-    console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [cpf, setCpf] = useState("");  
 
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+  const [showSuccess, setShowSuccess] = useState(false);
+
+
+  async function handleRegisterUser() {
+    if (!acceptTerms) {
+      alert("Necessário aceitar os Termos de Uso e Política de Privacidade para criar uma conta.");
+      return;
+    }
+
+    try {
+      const response = await registerUser({
+        nome,
+        email,
+        senha,
+        cpf,
+        foto_perfil: null,
+        bio: null
+    });
+
+    console.log("usuario criado", response);
+
+    setShowSuccess(true);
+
+    } catch (error) {
+      console.error("Erro ao criar usuário", error);
+    }
+  }
+
+// =================================================================================================================================
 
   useEffect(() => {
     const keyboardDidShow = Keyboard.addListener("keyboardDidShow", () => {
@@ -124,6 +139,8 @@ export function FormRegister() {
             placeholder=" "
             placeholderTextColor="#aaa"
             style={styles.input}
+            value={nome}
+            onChangeText={setNome}
             onFocus={() => {
               scrollRef.current?.scrollTo({
                 y: 250,
@@ -138,6 +155,8 @@ export function FormRegister() {
             placeholder=" "
             placeholderTextColor="#aaa"
             style={styles.input}
+            value={email}
+            onChangeText={setEmail}
             // onFocus={() => {
             //   scrollRef.current?.scrollTo({
             //     y: 250,
@@ -150,12 +169,13 @@ export function FormRegister() {
           </Text>
           
           <View style={styles.passwordContainer}>
-
             <TextInput
               placeholder=""
               placeholderTextColor="#aaa"
               secureTextEntry={!showPassword}
               style={styles.passwordInput}
+              value={senha}
+              onChangeText={setSenha}
 
               onFocus={() => {
                 setIsPasswordFocused(true);
@@ -174,7 +194,6 @@ export function FormRegister() {
                 color="#999"
               />
             </TouchableOpacity>
-
           </View>
 
           {/* <Text style={styles.txt_input_group}>
@@ -208,6 +227,23 @@ export function FormRegister() {
             </TouchableOpacity>
 
           </View> */}
+          <Text style={styles.txt_input_group}>
+            CPF
+          </Text>
+          <TextInput
+            placeholder=""
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={cpf}
+            onChangeText={setCpf}
+
+            onFocus={() => {
+              setIsPasswordFocused(true);
+            }}
+            onBlur={() => {
+              setIsPasswordFocused(false);
+            }}
+          /> 
         </View>
 
       {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
@@ -233,7 +269,7 @@ export function FormRegister() {
       {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
 
         <View style={styles.button_container}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={handleRegisterUser}>
             <Text style={styles.buttonText}>CRIAR CONTA</Text>
           </TouchableOpacity>
         </View>
@@ -243,8 +279,36 @@ export function FormRegister() {
             Já tem uma conta? <Text style={styles.login_link}>Entrar</Text>
           </Text>
         </View>
-
       </View>
+
+      {showSuccess && (
+        <View style={styles.overlay}>
+          <View style={styles.successCard}>
+            <MaterialIcons
+              name="check-circle"
+              size={50}
+              color="#3CFF00"
+            />
+            <Text style={styles.successTitle}>
+              Conta criada!
+            </Text>
+            <Text style={styles.successText}>
+              Sua conta foi criada com sucesso.
+            </Text>
+            <TouchableOpacity
+              style={styles.successButton}
+              onPress={() => {
+                router.replace("/");
+              }}
+            >
+              <Text style={styles.successButtonText}>
+                Ir para início
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
     </ScrollView>
   );
 }
@@ -441,5 +505,52 @@ const styles = StyleSheet.create({
   login_link: {
     color: "#3CFF00",
     fontWeight: "bold",
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  successCard: {
+    width: "85%",
+    backgroundColor: "#111",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#3CFF00",
+    padding: 30,
+    alignItems: "center",
+  },
+
+  successTitle: {
+    color:"#fff",
+    fontSize:22,
+    fontWeight:"bold",
+    marginTop:15,
+  },
+
+  successText: {
+    color:"#aaa",
+    textAlign:"center",
+    marginVertical:15,
+  },
+
+  successButton: {
+    backgroundColor:"#3CFF00",
+    width:"100%",
+    padding:12,
+    borderRadius:15,
+    alignItems:"center",
+  },
+
+  successButtonText: {
+    color:"#000",
+    fontWeight:"bold",
   },
 });

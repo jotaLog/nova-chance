@@ -26,3 +26,20 @@ export async function createUser(data: UserData) {
     );
     return result;
 }
+
+export async function loginUser(
+    email:string
+){
+
+const sql = `SELECT * FROM usuarios WHERE email = ?`;
+
+const [rows]:any = await db.execute(
+    sql,
+    [email]
+);
+
+if(rows.length === 0){
+    throw new Error("Usuário não encontrado");
+}
+return rows[0];
+}

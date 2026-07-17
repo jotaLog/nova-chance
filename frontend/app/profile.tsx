@@ -1,48 +1,116 @@
-import { useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, ScrollView } from "react-native";
 
-import ProfileInfo, { ProfileInfoData } from "../features/profile/components/profile_info";
+import ProfileInfo from "../features/profile/components/profile_info";
 import ButtonsFunction from "../features/profile/components/buttons_function";
-import NavPublish, { PublishTabKey } from "../features/profile/components/nav_publish";
-import PostsProfile, { mockPosts } from "../features/profile/components/posts_profile";
+import NavPublish, { PublishTabKey, } from "../features/profile/components/nav_publish";import PostsProfile, { mockPosts } from "../features/profile/components/posts_profile";
 
-// Exemplo: perfil do PRÓPRIO usuário (bate com o print 2)
-const ownProfileMock: ProfileInfoData = {
-  name: "felipe lopes",
-  username: "lipeswagboy",
-  stats: { publicacoes: 4, trocas: 17, seguidores: 49 },
-  tagIcon: "scissors",
-  tagText: "estilo próprio",
-  tagHighlight: "@dudinhawagirl",
-  location: "São Leopoldo, RS",
-};
+import { useLocalSearchParams } from "expo-router";
+import { followUser, unfollowUser, checkFollowing, getUserProfile, getFollowers, getFollowing } from "../services/authService";
+import { getLoggedUser } from "../services/storage";
 
-// Exemplo: perfil de OUTRA pessoa (bate com o print 3)
-const otherProfileMock: ProfileInfoData = {
-  name: "daniel costa",
-  username: "costa_clos3t",
-  stats: { publicacoes: 1, trocas: 0, seguidores: 12 },
-  tagText: "closet sempre",
-  tagHighlight: "atualizado",
-  location: "canoas, RS",
-};
+export default function ProfileScreenExample() {
 
-interface ProfileScreenExampleProps {
-  isOwnProfile?: boolean; // troque pra true/false só pra testar os dois cenários
-}
+  const { id } = useLocalSearchParams();
 
-export default function ProfileScreenExample({ isOwnProfile = true }: ProfileScreenExampleProps) {
+  const [profile, setProfile] = useState<any>(null);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<PublishTabKey>("posts");
-  const data = isOwnProfile ? ownProfileMock : otherProfileMock;
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState({seguindo: 0,});
+
+  useEffect(() => {
+
+    async function load() {
+      try {
+        const data = await getUserProfile(Number(id));
+        const followersData = await getFollowers(Number(id));
+        const followingData = await getFollowing(Number(id));
+        
+        setFollowers(followersData.seguidores);
+        setFollowing(followingData);
+
+        console.log("Perfil:", data);
+        setProfile(data);
+
+        const loggedUser = await getLoggedUser();
+
+        if (
+          loggedUser &&
+          loggedUser.id_usuario === data.id_usuario
+        ) {
+          setIsOwnProfile(true);
+        } else {
+          setIsOwnProfile(false);
+
+          if (loggedUser) {
+            const following = await checkFollowing(
+              data.id_usuario,
+              loggedUser.id_usuario
+            );
+
+            setIsFollowing(following);
+          }
+        }
+
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    load();
+
+  }, [id]);
+
+  if (!profile) {
+    return null;
+  }
+
+  const data = {
+    name: profile.nome,
+    username: profile.email.split("@")[0],
+    avatarUrl: profile.foto_perfil,
+    tagText: profile.bio || "",
+    location: "",
+    stats: {
+      publicacoes: 0,
+      seguindo: following.seguindo,
+      seguidores: followers,
+    },
+  };
+
+  async function handleFollow() {
+    const loggedUser = await getLoggedUser();
+    if (!loggedUser) return;
+    
+    if (isFollowing) {
+      await unfollowUser(
+        profile.id_usuario,
+        loggedUser.id_usuario
+      );
+
+      setIsFollowing(false);
+      setFollowers(prev => prev - 1);
+    } else {
+      await followUser(
+        profile.id_usuario,
+        loggedUser.id_usuario
+      );  
+      setIsFollowing(true);
+      setFollowers(prev => prev + 1);
+
+    }
+  }
 
   return (
     <ScrollView style={styles.screen}>
+
       <ProfileInfo
         data={data}
         isOwnProfile={isOwnProfile}
-        isFollowing={!isOwnProfile}
-        onSettingsPress={() => console.log("abrir configurações")}
-        onFollowPress={() => console.log("seguir/deixar de seguir")}
+        isFollowing={isFollowing}
+        onSettingsPress={() => console.log("config")}
+        onFollowPress={handleFollow}
       />
 
       <ButtonsFunction
@@ -51,9 +119,15 @@ export default function ProfileScreenExample({ isOwnProfile = true }: ProfileScr
         onDoarPress={() => console.log("doar")}
       />
 
-      <NavPublish activeTab={activeTab} onChangeTab={setActiveTab} />
+      <NavPublish
+        activeTab={activeTab}
+        onChangeTab={setActiveTab}
+      />
 
-      <PostsProfile posts={activeTab === "posts" ? mockPosts : []} />
+      <PostsProfile
+        posts={activeTab === "posts" ? mockPosts : []}
+      />
+
     </ScrollView>
   );
 }

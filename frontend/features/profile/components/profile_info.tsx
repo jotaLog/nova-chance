@@ -1,18 +1,17 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-// Ajuste essas cores pra bater com a sua paleta em /constants, se já tiver uma
 const COLORS = {
   background: "#000000",
-  green: "#2ECC71",
+  green: "#3CFF00",
   white: "#FFFFFF",
   gray: "#9CA3AF",
-  border: "#2ECC71",
+  border: "#3CFF00",
 };
 
 export interface ProfileStats {
   publicacoes: number;
-  trocas: number;
+  seguindo: number;
   seguidores: number;
 }
 
@@ -70,7 +69,7 @@ export default function ProfileInfo({
 
       <View style={styles.statsRow}>
         <StatItem label="publicações" value={data.stats.publicacoes} />
-        <StatItem label="trocas" value={data.stats.trocas} />
+        <StatItem label="seguindo" value={data.stats.seguindo} />
         <StatItem label="seguidores" value={data.stats.seguidores} />
       </View>
 

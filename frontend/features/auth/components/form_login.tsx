@@ -5,6 +5,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { login } from "../../../services/authService";
 import { router } from "expo-router";
+import { saveLogin } from "../../../services/storage";
 
 const Logo = require("../assets/image/logo-nova-chance.png");
 
@@ -22,19 +23,22 @@ export function FormLogin() {
   const [errorLogin,setErrorLogin] = useState("");
   const [showSuccessLogin, setShowSuccessLogin] = useState(false);
 
-
   async function handleLogin(){
     try{
-
       setErrorLogin("");
-        const response = await login({
-          email,
-          senha
-        });
+
+      const response = await login({
+        email,
+        senha
+      });
+
+      await saveLogin(
+        response.user,
+        response.token
+      );
 
       console.log("Login realizado:");
       console.log(response);
-      // depois vamos salvar o token aqui
       setShowSuccessLogin(true);
 
 

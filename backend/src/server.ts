@@ -30,6 +30,10 @@ app.get("/", async (req, res) => {
 
 });
 
+// app.get("/teste", (req, res) => {
+//     res.send("teste");
+// });
+
 app.use("/users", userRoutes);
 
 app.listen(3000, "0.0.0.0", () => {

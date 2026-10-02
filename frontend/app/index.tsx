@@ -22,6 +22,10 @@ export default function Home() {
     router.push("/chat");
   }
 
+    function goToAddClothes() {
+    router.push("/add-clothes");
+  }
+
   useEffect(() => {
 
     async function loadUsers() {
@@ -62,6 +66,10 @@ export default function Home() {
 
       <TouchableOpacity style={styles.button} onPress={goToChat}>
         <Text style={styles.buttonText}>Chat</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={goToAddClothes}>
+        <Text style={styles.buttonText}>Adicionar Roupa</Text>
       </TouchableOpacity>
 
       <TextInput

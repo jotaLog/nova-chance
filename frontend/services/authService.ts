@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { getToken } from "./storage";
 
 interface RegisterData {
     nome:string;
@@ -12,6 +13,16 @@ interface RegisterData {
 interface LoginData {
     email:string;
     senha:string;
+}
+
+interface ClothesData {
+  id_categoria: number;
+  id_tamanho: number;
+  nome: string;
+  descricao?: string | null;
+  imagem_url?: string | null;
+  marca?: string | null;
+  estado: string;
 }
 
 export async function registerUser(data:RegisterData){
@@ -82,5 +93,21 @@ export async function getFollowingUsers(id: number) {
   const response = await api.get(
     `/users/${id}/following/list`
   );
+  return response.data;
+}
+
+export async function registerClothes(data: ClothesData) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("Voc? precisa estar logado para cadastrar uma roupa.");
+  }
+
+  const response = await api.post("/clothes", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   return response.data;
 }

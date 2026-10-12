@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
     formContainer: {
         padding: 20,
     },
-    FormSelect: {
-        fontSize: 16,
-        color: "#000000",
-    },
+    // FormSelect: {
+    //     fontSize: 16,
+    //     color: "#000000",
+    // },
 }); 

@@ -40,7 +40,7 @@ export default function FormButton({
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#3CFF00",
-    borderRadius: 12,
+    borderRadius: 5,
     height: 48,
     alignItems: "center",
     justifyContent: "center",

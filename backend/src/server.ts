@@ -1,6 +1,8 @@
+import "dotenv/config";
 import express from "express";
 import { db } from "./config/database";
 import userRoutes from "./routes/userRouter";
+import clothesRoutes from "./routes/clothesRouter";
 
 const app = express();
 
@@ -35,6 +37,7 @@ app.get("/", async (req, res) => {
 // });
 
 app.use("/users", userRoutes);
+app.use("/clothes", clothesRoutes);
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");

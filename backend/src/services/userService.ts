@@ -32,10 +32,7 @@ const [rows]:any = await db.execute(
     [email]
 );
 
-if(rows.length === 0){
-    throw new Error("Usuário não encontrado");
-}
-return rows[0];
+return rows[0] ?? null;
 }
 
 export async function getAllUsers() {

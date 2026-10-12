@@ -34,5 +34,4 @@ router.get("/:id/is-following/:idSeguidor", checkFollowing);
 router.get("/:id/followers", getFollowers);
 router.get("/:id/following", getFollowing);
 
-
 export default router;

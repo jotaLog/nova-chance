@@ -53,7 +53,19 @@ export async function login(
 ) {
   try {
     const { email, senha } = req.body;
-    const user = await loginUser(email);
+    if (typeof email !== "string" || typeof senha !== "string" || !email.trim() || !senha) {
+      return res.status(400).json({
+        error: "Informe email e senha.",
+      });
+    }
+
+    const user = await loginUser(email.trim());
+    if (!user) {
+      return res.status(401).json({
+        error: "Email ou senha incorretos.",
+      });
+    }
+
     const senhaValida = await bcrypt.compare(
       senha,
       user.senha_hash
@@ -61,7 +73,15 @@ export async function login(
 
     if (!senhaValida) {
       return res.status(401).json({
-        error: "Senha incorreta",
+        error: "Email ou senha incorretos.",
+      });
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET não configurado.");
+      return res.status(500).json({
+        error: "Erro na configuração da autenticação.",
       });
     }
 
@@ -70,7 +90,7 @@ export async function login(
         id_usuario: user.id_usuario,
         email: user.email,
       },
-      "SECRET_KEY",
+      secret,
       {
         expiresIn: "1d",
       }

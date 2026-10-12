@@ -3,6 +3,7 @@ import Checkbox from "expo-checkbox";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { isAxiosError } from "axios";
 import { login } from "../../../services/authService";
 import { router } from "expo-router";
 import { saveLogin } from "../../../services/storage";
@@ -42,11 +43,16 @@ export function FormLogin() {
       setShowSuccessLogin(true);
 
 
-    } catch (error:any) {
-      console.log(error);
-      setErrorLogin(
-        "Email ou senha incorretos"
-      );
+    } catch (error: unknown) {
+      if (isAxiosError<{ error?: string }>(error)) {
+        setErrorLogin(
+          error.response?.data?.error ??
+            "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
+        );
+      } else {
+        console.error("Erro ao entrar:", error);
+        setErrorLogin("Não foi possível entrar. Tente novamente.");
+      }
     }
   }
   

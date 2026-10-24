@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "expo-router";
 
 import PostCard, { PostData } from "@/components/cards/postCard";
+import { getPublishedPosts } from "@/services/postStorage";
 
 const postsIniciais: PostData[] = [
   {
@@ -30,6 +32,33 @@ const postsIniciais: PostData[] = [
 
 export default function FeedPublish() {
   const [posts, setPosts] = useState(postsIniciais);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      async function loadPublishedPosts() {
+        try {
+          const publishedPosts = await getPublishedPosts();
+          if (active) {
+            setPosts([...publishedPosts, ...postsIniciais]);
+          }
+        } catch (error: unknown) {
+          console.error("Erro ao carregar posts publicados:", error);
+          Alert.alert(
+            "Erro",
+            "Não foi possível carregar as publicações salvas."
+          );
+        }
+      }
+
+      void loadPublishedPosts();
+
+      return () => {
+        active = false;
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

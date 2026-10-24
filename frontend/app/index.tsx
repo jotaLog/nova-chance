@@ -30,6 +30,10 @@ export default function Home() {
     router.push("/feed");
   }
 
+  function goTopostScreen() {
+    router.push("/postScreen");
+  }
+
   useEffect(() => {
 
     async function loadUsers() {
@@ -78,6 +82,10 @@ export default function Home() {
 
       <TouchableOpacity style={styles.button} onPress={goTofeed}>
         <Text style={styles.buttonText}>Feed</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={goTopostScreen}>
+        <Text style={styles.buttonText}>Criar Publicação</Text>
       </TouchableOpacity>
 
       <TextInput

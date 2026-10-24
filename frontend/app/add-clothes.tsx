@@ -1,14 +1,24 @@
 import { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, } from "react-native";
+import {
+  Alert,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { isAxiosError } from "axios";
 
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 
-import ImageOptionsCard from "@/components/cards/imageOptionsCard";
+import ImageOptionsCard from "@/features/clothes-add/components/select-picture";
 import FormInput from "@/components/forms/form-inputs";
 import FormSelect from "@/components/forms/form-inputs-select";
 import FormButton from "@/components/forms/form-button";
 import { registerClothes } from "@/services/authService";
+import { logout } from "@/services/storage";
 
 export default function AddClothes() {
   const [showOptions, setShowOptions] = useState(false);
@@ -48,6 +58,21 @@ export default function AddClothes() {
     } catch (requestError: unknown) {
       console.error("Erro ao cadastrar roupa:", requestError);
       if (isAxiosError<{ error?: string }>(requestError)) {
+        if (requestError.response?.status === 401) {
+          await logout();
+          Alert.alert(
+            "Sessão inválida",
+            "Faça login novamente para cadastrar a roupa.",
+            [
+              {
+                text: "Fazer login",
+                onPress: () => router.replace("/login"),
+              },
+            ]
+          );
+          return;
+        }
+
         setError(
           requestError.response?.data?.error ??
             "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."

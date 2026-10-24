@@ -23,7 +23,7 @@ export default function UserCard({
           <Image source={{ uri: foto_perfil }} style={styles.avatar} />
         ) : (
           <View style={styles.avatarPlaceholder}>
-            <Feather name="user" size={22} color="#3CFF00" />
+        +    <Feather name="user" size={22} color="#3CFF00" />
           </View>
         )}
       </View>

@@ -212,7 +212,7 @@ export default function ProfileScreen({ profileId }: { profileId?: number }) {
       {isOwnProfile ? (
         <ButtonsFunction
           onTrocarPress={() => router.push("/clothesFeed")}
-          onArmarioPress={() => router.push("/add-clothes")}
+          onArmarioPress={() => router.push("/wardrobe")}
         />
       ) : null}
 

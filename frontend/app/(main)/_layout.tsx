@@ -136,6 +136,7 @@ export default function MainLayout() {
           }}
         />
         <Tabs.Screen name="add-clothes" options={hiddenTabOptions} />
+        <Tabs.Screen name="wardrobe" options={hiddenTabOptions} />
         <Tabs.Screen name="conversation" options={hiddenTabOptions} />
         <Tabs.Screen name="settings" options={hiddenTabOptions} />
         <Tabs.Screen name="sensitive-settings" options={hiddenTabOptions} />

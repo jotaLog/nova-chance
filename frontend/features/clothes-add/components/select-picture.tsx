@@ -12,7 +12,11 @@ import * as ImagePicker from "expo-image-picker";
 interface ImageOptionsCardProps {
   visible: boolean;
   onClose: () => void;
-  onImageSelected: (uri: string) => void;
+  onImageSelected: (
+    uri: string,
+    base64: string | null,
+    mimeType: string | null
+  ) => void;
 }
 
 export default function ImageOptionsCard({
@@ -46,17 +50,19 @@ export default function ImageOptionsCard({
           ? await ImagePicker.launchCameraAsync({
               mediaTypes: ["images"],
               allowsEditing: true,
-              quality: 1,
+              quality: 0.7,
+              base64: true,
             })
           : await ImagePicker.launchImageLibraryAsync({
               mediaTypes: ["images"],
               allowsEditing: true,
-              quality: 1,
+              quality: 0.7,
+              base64: true,
             });
 
       const image = result.assets?.[0];
       if (!result.canceled && image) {
-        onImageSelected(image.uri);
+        onImageSelected(image.uri, image.base64 ?? null, image.mimeType ?? null);
         onClose();
       }
     } catch (error: unknown) {
@@ -119,7 +125,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 6,
     backgroundColor: "#151515",
   },
   title: {

@@ -26,9 +26,11 @@ export default function ButtonsFunction({
         <Text style={styles.buttonText}>armario</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={onDoarPress} activeOpacity={0.7}>
-        <Text style={styles.buttonText}>doar</Text>
-      </TouchableOpacity>
+      {onDoarPress ? (
+        <TouchableOpacity style={styles.button} onPress={onDoarPress} activeOpacity={0.7}>
+          <Text style={styles.buttonText}>doar</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: "#3CFF00",
-    borderRadius: 8,
+    borderRadius: 6,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",

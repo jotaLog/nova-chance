@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Alert,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -42,8 +41,8 @@ export default function PostScreen() {
       setImage(null);
       setDescription("");
       Alert.alert(
-        "Post publicado",
-        "Sua publicação foi salva no banco de dados."
+        "Publicado com sucesso",
+        "Sua publicação foi compartilhada no feed."
       );
     } catch (error: unknown) {
       console.error("Erro ao publicar post:", error);
@@ -54,6 +53,11 @@ export default function PostScreen() {
             "Sessão inválida",
             "Faça login novamente para publicar um post.",
             [{ text: "Fazer login", onPress: () => router.replace("/login") }]
+          );
+        } else if (!error.response) {
+          Alert.alert(
+            "API indisponível",
+            "Não foi possível conectar ao backend. Inicie o servidor e verifique se o dispositivo está na mesma rede."
           );
         } else {
           Alert.alert(
@@ -76,16 +80,11 @@ export default function PostScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Criar publicação</Text>
-        <Text style={styles.description}>
-          Tire uma foto ou escolha uma imagem para o seu post.
-        </Text>
-
         <TextInput
           style={styles.captionInput}
           value={description}
@@ -143,7 +142,7 @@ export default function PostScreen() {
           </Text>
         ) : null}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -156,24 +155,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  title: {
-    color: "#FFF",
-    fontSize: 26,
-    fontWeight: "bold",
-  },
-  description: {
-    marginTop: 8,
-    marginBottom: 22,
-    color: "#AAA",
-    fontSize: 15,
-  },
   captionInput: {
     minHeight: 96,
     marginBottom: 4,
     padding: 12,
     borderWidth: 1,
     borderColor: "#333",
-    borderRadius: 10,
+    borderRadius: 6,
     color: "#FFF",
     fontSize: 15,
     backgroundColor: "#111",
@@ -188,7 +176,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 4 / 5,
     overflow: "hidden",
-    borderRadius: 14,
+    borderRadius: 6,
     backgroundColor: "#151515",
   },
   image: {
@@ -203,7 +191,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: "#444",
-    borderRadius: 14,
+    borderRadius: 6,
   },
   placeholderText: {
     color: "#777",
@@ -219,7 +207,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 20,
-    borderRadius: 10,
+    borderRadius: 6,
     backgroundColor: "#3CFF00",
   },
   publishButtonDisabled: {

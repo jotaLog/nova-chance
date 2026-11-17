@@ -32,6 +32,7 @@ interface ProfileInfoProps {
   isFollowing?: boolean;
   onSettingsPress?: () => void;
   onFollowPress?: () => void;
+  onMessagePress?: () => void;
 }
 
 function StatItem({ label, value }: { label: string; value: number }) {
@@ -49,6 +50,7 @@ export default function ProfileInfo({
   isFollowing = false,
   onSettingsPress,
   onFollowPress,
+  onMessagePress,
 }: ProfileInfoProps) {
   return (
     <View style={styles.container}>
@@ -79,9 +81,23 @@ export default function ProfileInfo({
           <Text style={styles.actionButtonText}>configurações</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity style={styles.actionButton} onPress={onFollowPress} activeOpacity={0.7}>
-          <Text style={styles.actionButtonText}>{isFollowing ? "seguindo" : "seguir"}</Text>
-        </TouchableOpacity>
+        <View style={styles.profileActions}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.profileActionButton]}
+            onPress={onFollowPress}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.actionButtonText}>{isFollowing ? "seguindo" : "seguir"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.profileActionButton]}
+            onPress={onMessagePress}
+            activeOpacity={0.7}
+          >
+            <Feather name="message-circle" size={16} color={COLORS.green} />
+            <Text style={styles.actionButtonText}>mensagem</Text>
+          </TouchableOpacity>
+        </View>
       )}
 
       {!!data.tagText && (
@@ -164,8 +180,15 @@ const styles = StyleSheet.create({
     gap: 6,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingVertical: 10,
+  },
+  profileActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  profileActionButton: {
+    flex: 1,
   },
   actionButtonText: {
     color: COLORS.white,

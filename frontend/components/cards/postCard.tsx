@@ -15,6 +15,7 @@ export interface PostData {
   comentarios?: number;
   curtido?: boolean;
   salvo?: boolean;
+  seguindo?: boolean;
 }
 
 interface PostCardProps {
@@ -24,6 +25,8 @@ interface PostCardProps {
   onPressCurtir?: (curtido: boolean) => void;
   onPressComentar?: () => void;
   onPressSalvar?: (salvo: boolean) => void;
+  onPressSeguir?: (seguindo: boolean) => void | Promise<void>;
+  isOwnPost?: boolean;
 }
 
 export default function PostCard({
@@ -33,6 +36,8 @@ export default function PostCard({
   onPressCurtir,
   onPressComentar,
   onPressSalvar,
+  onPressSeguir,
+  isOwnPost,
 }: PostCardProps) {
   return (
     <View style={styles.card}>
@@ -41,6 +46,9 @@ export default function PostCard({
         fotoPerfil={post.fotoPerfil}
         subtitulo={post.subtitulo}
         onPressPerfil={onPressPerfil}
+        seguindo={post.seguindo}
+        onPressSeguir={onPressSeguir}
+        isOwnUser={isOwnPost}
       />
 
       <PostImage imagem={post.imagem} aspectRatio={4 / 5} />

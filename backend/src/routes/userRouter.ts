@@ -1,6 +1,8 @@
 import { Router } from "express";
 
 import { registerUser, login,
+    requestPasswordReset, resetPassword,
+    getMyAccount, updateMyAccount, deleteMyAccount,
     getUserById, followUser,
     unfollowUser, checkFollowing,
     getFollowers, getFollowing,
@@ -8,6 +10,7 @@ import { registerUser, login,
 } from "../controller/userController";
 
 import { getAllUsers } from "../services/userService";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -17,6 +20,11 @@ router.get("/ping", (req, res) => {
 
 router.post("/register", registerUser);
 router.post("/login", login);
+router.post("/password-reset/request", requestPasswordReset);
+router.post("/password-reset/confirm", resetPassword);
+router.get("/me", authMiddleware, getMyAccount);
+router.put("/me", authMiddleware, updateMyAccount);
+router.delete("/me", authMiddleware, deleteMyAccount);
 router.get("/", async (req, res) => {
     try {
         const users = await getAllUsers();
@@ -28,9 +36,9 @@ router.get("/", async (req, res) => {
 });
 router.get("/:id/following/list", getFollowingUsersList);
 router.get("/:id", getUserById);
-router.post("/:id/follow", followUser);
-router.delete("/:id/follow", unfollowUser);
-router.get("/:id/is-following/:idSeguidor", checkFollowing);
+router.post("/:id/follow", authMiddleware, followUser);
+router.delete("/:id/follow", authMiddleware, unfollowUser);
+router.get("/:id/is-following/:idSeguidor", authMiddleware, checkFollowing);
 router.get("/:id/followers", getFollowers);
 router.get("/:id/following", getFollowing);
 

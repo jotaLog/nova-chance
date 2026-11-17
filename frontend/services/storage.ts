@@ -8,6 +8,10 @@ export async function saveLogin(user: any, token: string) {
   await AsyncStorage.setItem(TOKEN_KEY, token);
 }
 
+export async function saveLoggedUser(user: unknown) {
+  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
 export async function getLoggedUser() {
   const user = await AsyncStorage.getItem(USER_KEY);
 

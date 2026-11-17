@@ -15,6 +15,24 @@ interface LoginData {
     senha:string;
 }
 
+export interface AccountData {
+  id_usuario: number;
+  nome: string;
+  email: string;
+  cpf: string;
+  foto_perfil: string | null;
+  bio: string | null;
+}
+
+export interface UpdateAccountData {
+  nome?: string;
+  email?: string;
+  cpf?: string;
+  bio?: string | null;
+  senha_atual?: string;
+  nova_senha?: string;
+}
+
 interface ClothesData {
   id_categoria: number;
   id_tamanho: number;
@@ -23,6 +41,18 @@ interface ClothesData {
   imagem_url?: string | null;
   marca?: string | null;
   estado: string;
+  disponivel_troca: boolean;
+  imagem_base64?: string | null;
+  mime_type?: string | null;
+}
+
+async function getAuthHeaders() {
+  const token = await getToken();
+  if (!token) {
+    throw new Error("Você precisa estar logado.");
+  }
+
+  return { Authorization: `Bearer ${token}` };
 }
 
 export async function registerUser(data:RegisterData){
@@ -51,9 +81,49 @@ export async function getUserProfile(id:number){
     return response.data;
 }
 
+export async function getMyAccount(): Promise<AccountData> {
+  const response = await api.get<AccountData>("/users/me", {
+    headers: await getAuthHeaders(),
+  });
+  return response.data;
+}
+
+export async function updateMyAccount(data: UpdateAccountData) {
+  const response = await api.put<{ user: AccountData }>("/users/me", data, {
+    headers: await getAuthHeaders(),
+  });
+  return response.data.user;
+}
+
+export async function deleteMyAccount(senha_atual: string) {
+  const response = await api.delete<{ message: string }>("/users/me", {
+    data: { senha_atual },
+    headers: await getAuthHeaders(),
+  });
+  return response.data;
+}
+
+export async function requestPasswordReset(email: string) {
+  const response = await api.post<{ message: string }>(
+    "/users/password-reset/request",
+    { email }
+  );
+  return response.data;
+}
+
+export async function resetPassword(token: string, nova_senha: string) {
+  const response = await api.post<{ message: string }>(
+    "/users/password-reset/confirm",
+    { token, nova_senha }
+  );
+  return response.data;
+}
+
 export async function followUser(idSeguido: number, idSeguidor: number) {
   const response = await api.post(`/users/${idSeguido}/follow`, {
     idSeguidor,
+  }, {
+    headers: await getAuthHeaders(),
   });
 
   return response.data;
@@ -64,6 +134,7 @@ export async function unfollowUser(idSeguido: number, idSeguidor: number) {
     data: {
       idSeguidor,
     },
+    headers: await getAuthHeaders(),
   });
 
   return response.data;
@@ -71,7 +142,8 @@ export async function unfollowUser(idSeguido: number, idSeguidor: number) {
 
 export async function checkFollowing(idSeguido: number, idSeguidor: number) {
   const response = await api.get(
-    `/users/${idSeguido}/is-following/${idSeguidor}`
+    `/users/${idSeguido}/is-following/${idSeguidor}`,
+    { headers: await getAuthHeaders() }
   );
 
   return response.data.following;

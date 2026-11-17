@@ -13,9 +13,14 @@ export type PublishTabKey = "posts" | "salvos";
 interface NavPublishProps {
   activeTab: PublishTabKey;
   onChangeTab: (tab: PublishTabKey) => void;
+  showSaved?: boolean;
 }
 
-export default function NavPublish({ activeTab, onChangeTab }: NavPublishProps) {
+export default function NavPublish({
+  activeTab,
+  onChangeTab,
+  showSaved = true,
+}: NavPublishProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -36,23 +41,25 @@ export default function NavPublish({ activeTab, onChangeTab }: NavPublishProps) 
         <View style={[styles.bar, activeTab === "posts" && styles.barActive]} />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.tab}
-        onPress={() => onChangeTab("salvos")}
-        activeOpacity={0.7}
-      >
-        <View style={styles.tabContent}>
-          <Feather
-            name="bookmark"
-            size={16}
-            color={activeTab === "salvos" ? "#3CFF00" : COLORS.gray}
-          />
-          <Text style={[styles.tabLabel, activeTab === "salvos" && styles.tabLabelActive]}>
-            salvos
-          </Text>
-        </View>
-        <View style={[styles.bar, activeTab === "salvos" && styles.barActive]} />
-      </TouchableOpacity>
+      {showSaved ? (
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() => onChangeTab("salvos")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.tabContent}>
+            <Feather
+              name="bookmark"
+              size={16}
+              color={activeTab === "salvos" ? "#3CFF00" : COLORS.gray}
+            />
+            <Text style={[styles.tabLabel, activeTab === "salvos" && styles.tabLabelActive]}>
+              salvos
+            </Text>
+          </View>
+          <View style={[styles.bar, activeTab === "salvos" && styles.barActive]} />
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }

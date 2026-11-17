@@ -38,8 +38,6 @@ export function FormLogin() {
         response.token
       );
 
-      console.log("Login realizado:");
-      console.log(response);
       setShowSuccessLogin(true);
 
 
@@ -188,7 +186,9 @@ export function FormLogin() {
             </TouchableOpacity>
           </View>
           <View style={styles.container_problem_login}>
-            <Text style={styles.problem_with_login_content}>Problemas ao acessar sua conta?</Text>
+            <TouchableOpacity onPress={() => router.push("/forgot-password")}>
+              <Text style={styles.problem_with_login_content}>Esqueceu a senha?</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -222,9 +222,10 @@ export function FormLogin() {
         </View>
 
         <View style={styles.container_dont_have_account}>
-          <Text style={styles.dont_have}>
-            Não tem uma conta? <Text style={styles.login_link}>Cadastrar</Text>
-          </Text>
+          <Text style={styles.dont_have}>Não tem uma conta?</Text>
+          <TouchableOpacity onPress={() => router.push("/register")}>
+            <Text style={styles.login_link}>Cadastrar</Text>
+          </TouchableOpacity>
         </View>
 
       </View>
@@ -246,7 +247,10 @@ export function FormLogin() {
             <TouchableOpacity
               style={styles.successButton}
               onPress={() => {
-                router.replace("/");
+                setShowSuccessLogin(false);
+                setEmail("");
+                setSenha("");
+                router.replace("/feed");
               }}
             >
               <Text style={styles.successButtonText}>
@@ -306,7 +310,7 @@ const styles = StyleSheet.create({
   enter_methods: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     backgroundColor: "#111",
 
     margin: 10,
@@ -355,7 +359,7 @@ const styles = StyleSheet.create({
   input: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 6,
 
     paddingVertical: 5,
     paddingHorizontal: 14,
@@ -372,7 +376,7 @@ const styles = StyleSheet.create({
   passwordContainer: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 6,
 
     backgroundColor: "#111",
 
@@ -430,7 +434,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#3CFF00",
-    borderRadius: 20,
+    borderRadius: 6,
     
     width: "100%",
     height: 40,
@@ -446,7 +450,10 @@ const styles = StyleSheet.create({
   },
 
   container_dont_have_account: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
     paddingBottom: 20,
   },
 
@@ -481,7 +488,7 @@ const styles = StyleSheet.create({
   successCard: {
     width: "85%",
     backgroundColor: "#111",
-    borderRadius: 20,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "#3CFF00",
     padding: 30,
@@ -505,7 +512,7 @@ const styles = StyleSheet.create({
     backgroundColor:"#3CFF00",
     width:"100%",
     padding:12,
-    borderRadius:15,
+    borderRadius:6,
     alignItems:"center",
   },
 

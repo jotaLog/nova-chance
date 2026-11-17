@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  Alert,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 interface PostActionsProps {
@@ -7,9 +13,9 @@ interface PostActionsProps {
   curtidoInicialmente?: boolean;
   salvoInicialmente?: boolean;
   comentarios?: number;
-  onPressCurtir?: (curtido: boolean) => void;
+  onPressCurtir?: (curtido: boolean) => void | Promise<void>;
   onPressComentar?: () => void;
-  onPressSalvar?: (salvo: boolean) => void;
+  onPressSalvar?: (salvo: boolean) => void | Promise<void>;
   onPressMenu?: () => void;
 }
 
@@ -23,27 +29,45 @@ export default function PostActions({
   onPressSalvar,
   onPressMenu,
 }: PostActionsProps) {
-  const [curtido, setCurtido] = useState(curtidoInicialmente);
-  const [salvo, setSalvo] = useState(salvoInicialmente);
+  const [processingLike, setProcessingLike] = useState(false);
+  const [processingSave, setProcessingSave] = useState(false);
 
-  const [curtidas, setCurtidas] = useState(
-    curtidasIniciais
-  );
+  const curtido = curtidoInicialmente;
+  const salvo = salvoInicialmente;
+  const curtidas = curtidasIniciais;
 
-  function alternarCurtida() {
+  async function alternarCurtida() {
+    if (processingLike) return;
     const novoEstado = !curtido;
 
-    setCurtido(novoEstado);
-    setCurtidas((atual) => atual + (novoEstado ? 1 : -1));
-
-    onPressCurtir?.(novoEstado);
+    setProcessingLike(true);
+    try {
+      await onPressCurtir?.(novoEstado);
+    } catch (error: unknown) {
+      Alert.alert(
+        "Erro",
+        error instanceof Error ? error.message : "Não foi possível curtir."
+      );
+    } finally {
+      setProcessingLike(false);
+    }
   }
 
-  function alternarSalvo() {
+  async function alternarSalvo() {
+    if (processingSave) return;
     const novoEstado = !salvo;
 
-    setSalvo(novoEstado);
-    onPressSalvar?.(novoEstado);
+    setProcessingSave(true);
+    try {
+      await onPressSalvar?.(novoEstado);
+    } catch (error: unknown) {
+      Alert.alert(
+        "Erro",
+        error instanceof Error ? error.message : "Não foi possível salvar."
+      );
+    } finally {
+      setProcessingSave(false);
+    }
   }
 
   return (
@@ -51,7 +75,8 @@ export default function PostActions({
       <View style={styles.leftActions}>
         <TouchableOpacity
           style={styles.actionWithCount}
-          onPress={alternarCurtida}
+          onPress={() => void alternarCurtida()}
+          disabled={processingLike}
           activeOpacity={0.7}
           accessibilityLabel={curtido ? "Descurtir" : "Curtir"}
         >
@@ -86,7 +111,8 @@ export default function PostActions({
       <View style={styles.rightActions}>
         <TouchableOpacity
           style={styles.action}
-          onPress={alternarSalvo}
+          onPress={() => void alternarSalvo()}
+          disabled={processingSave}
           activeOpacity={0.7}
           accessibilityLabel={salvo ? "Remover dos salvos" : "Salvar"}
         >

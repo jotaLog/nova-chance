@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  Alert,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 interface PostHeaderProps {
@@ -7,6 +14,9 @@ interface PostHeaderProps {
   fotoPerfil?: string | null;
   subtitulo?: string;
   onPressPerfil?: () => void;
+  seguindo?: boolean;
+  onPressSeguir?: (seguindo: boolean) => void | Promise<void>;
+  isOwnUser?: boolean;
 }
 
 export default function PostHeader({
@@ -14,8 +24,27 @@ export default function PostHeader({
   fotoPerfil,
   subtitulo,
   onPressPerfil,
+  seguindo = false,
+  onPressSeguir,
+  isOwnUser = false,
 }: PostHeaderProps) {
-  const [seguindo, setSeguindo] = useState(false);
+  const [updatingFollow, setUpdatingFollow] = useState(false);
+
+  async function toggleFollow() {
+    if (!onPressSeguir || updatingFollow) return;
+
+    setUpdatingFollow(true);
+    try {
+      await onPressSeguir(!seguindo);
+    } catch (error: unknown) {
+      Alert.alert(
+        "Erro",
+        error instanceof Error ? error.message : "Não foi possível seguir."
+      );
+    } finally {
+      setUpdatingFollow(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -50,12 +79,13 @@ export default function PostHeader({
 
       <TouchableOpacity
         style={[styles.followButton, seguindo && styles.followingButton]}
-        onPress={() => setSeguindo((atual) => !atual)}
+        onPress={() => void toggleFollow()}
+        disabled={isOwnUser || !onPressSeguir || updatingFollow}
         activeOpacity={0.7}
         accessibilityLabel={seguindo ? "Deixar de seguir" : "Seguir usuário"}
       >
         <Text style={[styles.followText, seguindo && styles.followingText]}>
-          {seguindo ? "Seguindo" : "Seguir"}
+          {isOwnUser ? "Você" : seguindo ? "Seguindo" : "Seguir"}
         </Text>
       </TouchableOpacity>
     </View>

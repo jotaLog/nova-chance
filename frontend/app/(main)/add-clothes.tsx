@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Switch,
 } from "react-native";
 import { isAxiosError } from "axios";
 
@@ -23,12 +24,15 @@ import { logout } from "@/services/storage";
 export default function AddClothes() {
   const [showOptions, setShowOptions] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [imageMimeType, setImageMimeType] = useState<string | null>(null);
 
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [tamanho, setTamanho] = useState("");
   const [estado, setEstado] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [disponivelTroca, setDisponivelTroca] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -36,6 +40,10 @@ export default function AddClothes() {
   async function handleAddClothes() {
     setError("");
     setSuccess("");
+    if (image && !imageBase64) {
+      setError("Não foi possível preparar a foto. Selecione a imagem novamente.");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -44,8 +52,10 @@ export default function AddClothes() {
         id_tamanho: Number(tamanho),
         nome: nome.trim(),
         descricao: descricao.trim() || null,
-        imagem_url: null,
+        imagem_base64: imageBase64,
+        mime_type: imageMimeType,
         estado,
+        disponivel_troca: disponivelTroca,
       });
 
       setSuccess("Roupa cadastrada com sucesso.");
@@ -55,6 +65,9 @@ export default function AddClothes() {
       setEstado("");
       setDescricao("");
       setImage(null);
+      setImageBase64(null);
+      setImageMimeType(null);
+      setDisponivelTroca(true);
     } catch (requestError: unknown) {
       console.error("Erro ao cadastrar roupa:", requestError);
       if (isAxiosError<{ error?: string }>(requestError)) {
@@ -95,9 +108,6 @@ export default function AddClothes() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Adicionar roupa</Text>
-
-      {/* FOTO */}
       <TouchableOpacity
         style={styles.imageContainer}
         onPress={() => setShowOptions(true)}
@@ -124,7 +134,7 @@ export default function AddClothes() {
       </TouchableOpacity>
 
       <Text style={styles.photoHint}>
-        A foto selecionada ainda não é enviada para o servidor.
+        A foto será exibida no feed de trocas.
       </Text>
 
       {/* FORMULÁRIO */}
@@ -186,6 +196,22 @@ export default function AddClothes() {
           multiline
         />
 
+        <View style={styles.tradeOption}>
+          <View style={styles.tradeOptionText}>
+            <Text style={styles.tradeOptionTitle}>Disponível para troca</Text>
+            <Text style={styles.tradeOptionHint}>
+              Esta peça aparecerá no feed exclusivo de trocas.
+            </Text>
+          </View>
+          <Switch
+            value={disponivelTroca}
+            onValueChange={setDisponivelTroca}
+            trackColor={{ false: "#444", true: "#287A12" }}
+            thumbColor={disponivelTroca ? "#3CFF00" : "#DDD"}
+            accessibilityLabel="Disponível para troca"
+          />
+        </View>
+
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {success ? <Text style={styles.success}>{success}</Text> : null}
 
@@ -201,7 +227,11 @@ export default function AddClothes() {
       <ImageOptionsCard
         visible={showOptions}
         onClose={() => setShowOptions(false)}
-        onImageSelected={(uri) => setImage(uri)}
+        onImageSelected={(uri, base64, mimeType) => {
+          setImage(uri);
+          setImageBase64(base64);
+          setImageMimeType(mimeType);
+        }}
       />
     </ScrollView>
   );
@@ -231,7 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#111",
     borderWidth: 1,
     borderColor: "#3CFF00",
-    borderRadius: 15,
+    borderRadius: 6,
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -255,6 +285,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 8,
     marginBottom: 25,
+  },
+  tradeOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: 14,
+    borderRadius: 6,
+    backgroundColor: "#111",
+  },
+  tradeOptionText: {
+    flex: 1,
+  },
+  tradeOptionTitle: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  tradeOptionHint: {
+    marginTop: 4,
+    color: "#999",
+    fontSize: 12,
+    lineHeight: 17,
   },
 
   error: {

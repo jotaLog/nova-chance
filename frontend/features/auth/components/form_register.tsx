@@ -1,8 +1,9 @@
-import { Text, View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { Alert, Text, View, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { isAxiosError } from "axios";
 import { registerUser } from "../../../services/authService";
 import { router } from "expo-router";
 
@@ -24,7 +25,10 @@ export function FormRegister() {
 
   async function handleRegisterUser() {
     if (!acceptTerms) {
-      alert("Necessário aceitar os Termos de Uso e Política de Privacidade para criar uma conta.");
+      Alert.alert(
+        "Termos necessários",
+        "Aceite os Termos de Uso e a Política de Privacidade para criar uma conta."
+      );
       return;
     }
 
@@ -42,8 +46,17 @@ export function FormRegister() {
 
     setShowSuccess(true);
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Erro ao criar usuário", error);
+      Alert.alert(
+        "Não foi possível criar a conta",
+        isAxiosError<{ error?: string }>(error)
+          ? error.response?.data?.error ??
+              "Não foi possível conectar ao servidor. Tente novamente."
+          : error instanceof Error
+            ? error.message
+            : "Tente novamente."
+      );
     }
   }
 
@@ -359,7 +372,7 @@ const styles = StyleSheet.create({
   enter_methods: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     backgroundColor: "#111",
 
     margin: 10,
@@ -408,7 +421,7 @@ const styles = StyleSheet.create({
   input: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 6,
 
     paddingVertical: 5,
     paddingHorizontal: 14,
@@ -425,7 +438,7 @@ const styles = StyleSheet.create({
   passwordContainer: {
     borderColor: "#3CFF00",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 6,
 
     backgroundColor: "#111",
 
@@ -477,7 +490,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#3CFF00",
-    borderRadius: 20,
+    borderRadius: 6,
     
     width: "100%",
     height: 40,
@@ -521,7 +534,7 @@ const styles = StyleSheet.create({
   successCard: {
     width: "85%",
     backgroundColor: "#111",
-    borderRadius: 20,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "#3CFF00",
     padding: 30,
@@ -545,7 +558,7 @@ const styles = StyleSheet.create({
     backgroundColor:"#3CFF00",
     width:"100%",
     padding:12,
-    borderRadius:15,
+    borderRadius:6,
     alignItems:"center",
   },
 
